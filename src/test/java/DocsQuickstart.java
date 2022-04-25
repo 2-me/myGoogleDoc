@@ -10,13 +10,14 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.docs.v1.Docs;
 import com.google.api.services.docs.v1.DocsScopes;
-import com.google.api.services.docs.v1.model.Document;
+import com.google.api.services.docs.v1.model.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -77,6 +78,37 @@ public class DocsQuickstart {
         doc = service.documents().create(doc)
                 .execute();
         System.out.println("Created document with title: " + doc.getTitle());
+        String text1 = "Hello World";
+        List<Request> requests = new ArrayList<>();
+        requests.add(new Request().setInsertText(new InsertTextRequest()
+                .setText(text1)
+                .setLocation(new Location().setIndex(1))));
+
+        requests.add(new Request().setInsertText(new InsertTextRequest()
+                .setText(text1)
+                .setLocation(new Location().setIndex(23))));
+
+        requests.add(new Request().setInsertText(new InsertTextRequest()
+                .setText(text1)
+                .setLocation(new Location().setIndex(23))));
+
+        requests.add(new Request().setUpdateParagraphStyle(new UpdateParagraphStyleRequest()
+                .setRange(new Range()
+                        .setStartIndex(1)
+                        .setEndIndex(23))
+                .setParagraphStyle(new ParagraphStyle()
+                        .setNamedStyleType("HEADING_1")
+                        .setSpaceAbove(new Dimension()
+                                .setMagnitude(10.0)
+                                .setUnit("PT"))
+                        .setSpaceBelow(new Dimension()
+                                .setMagnitude(10.0)
+                                .setUnit("PT")))
+                .setFields("namedStyleType,spaceAbove,spaceBelow")));
+
+        BatchUpdateDocumentRequest body = new BatchUpdateDocumentRequest().setRequests(requests);
+        BatchUpdateDocumentResponse response = service.documents()
+                .batchUpdate(doc.getDocumentId(), body).execute();
 
 
     }
